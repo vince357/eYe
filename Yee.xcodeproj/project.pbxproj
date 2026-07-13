@@ -7,17 +7,32 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B001 /* ImageViewerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A001 /* ImageViewerApp.swift */; };
+		B001 /* YeeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A001 /* YeeApp.swift */; };
 		B002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002 /* ContentView.swift */; };
-		B003 /* ImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A003 /* ImageStore.swift */; };
+		B003 /* MediaStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A003 /* MediaStore.swift */; };
+		B004 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A004 /* AppDelegate.swift */; };
+		B005 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A005 /* AppSettings.swift */; };
+		B006 /* ImageDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A006 /* ImageDisplayView.swift */; };
+		B007 /* StatusBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A007 /* StatusBarView.swift */; };
+		B008 /* YeeCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A008 /* YeeCommands.swift */; };
+		B009 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A011 /* PreferencesView.swift */; };
+		B010 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A012 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A001 /* ImageViewerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewerApp.swift; sourceTree = "<group>"; };
+		A001 /* YeeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YeeApp.swift; sourceTree = "<group>"; };
 		A002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		A003 /* ImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageStore.swift; sourceTree = "<group>"; };
-		A004 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		PROD /* ImageViewer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ImageViewer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A003 /* MediaStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaStore.swift; sourceTree = "<group>"; };
+		A004 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A005 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+		A006 /* ImageDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDisplayView.swift; sourceTree = "<group>"; };
+		A007 /* StatusBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBarView.swift; sourceTree = "<group>"; };
+		A008 /* YeeCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YeeCommands.swift; sourceTree = "<group>"; };
+		A009 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		A010 /* Yee.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Yee.entitlements; sourceTree = "<group>"; };
+		A011 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		A012 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		PROD /* Yee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yee.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -34,26 +49,34 @@
 		ROOT = {
 			isa = PBXGroup;
 			children = (
-				GRP1 /* ImageViewer */,
+				GRP1 /* Yee */,
 				GRP2 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		GRP1 /* ImageViewer */ = {
+		GRP1 /* Yee */ = {
 			isa = PBXGroup;
 			children = (
-				A001 /* ImageViewerApp.swift */,
+				A001 /* YeeApp.swift */,
+				A004 /* AppDelegate.swift */,
 				A002 /* ContentView.swift */,
-				A003 /* ImageStore.swift */,
-				A004 /* Info.plist */,
+				A003 /* MediaStore.swift */,
+				A005 /* AppSettings.swift */,
+				A011 /* PreferencesView.swift */,
+				A006 /* ImageDisplayView.swift */,
+				A007 /* StatusBarView.swift */,
+				A008 /* YeeCommands.swift */,
+				A012 /* Assets.xcassets */,
+				A009 /* Info.plist */,
+				A010 /* Yee.entitlements */,
 			);
-			path = ImageViewer;
+			path = Yee;
 			sourceTree = "<group>";
 		};
 		GRP2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				PROD /* ImageViewer.app */,
+				PROD /* Yee.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,9 +84,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		TGT1 /* ImageViewer */ = {
+		TGT1 /* Yee */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = XCL1 /* Build configuration list for PBXNativeTarget "ImageViewer" */;
+			buildConfigurationList = XCL1 /* Build configuration list for PBXNativeTarget "Yee" */;
 			buildPhases = (
 				SRC1 /* Sources */,
 				FW01 /* Frameworks */,
@@ -73,9 +96,9 @@
 			);
 			dependencies = (
 			);
-			name = ImageViewer;
-			productName = ImageViewer;
-			productReference = PROD /* ImageViewer.app */;
+			name = Yee;
+			productName = Yee;
+			productReference = PROD /* Yee.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -88,27 +111,19 @@
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					TGT1 = {
-						CreatedOnToolsVersion = 15.0;
-					};
+					TGT1 = { CreatedOnToolsVersion = 15.0; };
 				};
 			};
-			buildConfigurationList = XCL0 /* Build configuration list for PBXProject "ImageViewer" */;
+			buildConfigurationList = XCL0 /* Build configuration list for PBXProject "Yee" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = fr;
 			hasScannedForEncodings = 0;
-			knownRegions = (
-				fr,
-				en,
-				Base,
-			);
+			knownRegions = ( fr, en, Base, );
 			mainGroup = ROOT;
 			productRefGroup = GRP2 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (
-				TGT1 /* ImageViewer */,
-			);
+			targets = ( TGT1 /* Yee */, );
 		};
 /* End PBXProject section */
 
@@ -116,8 +131,7 @@
 		RES1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
-			files = (
-			);
+			files = ( B010 /* Assets.xcassets in Resources */, );
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
@@ -127,9 +141,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B001 /* ImageViewerApp.swift in Sources */,
+				B001 /* YeeApp.swift in Sources */,
+				B004 /* AppDelegate.swift in Sources */,
 				B002 /* ContentView.swift in Sources */,
-				B003 /* ImageStore.swift in Sources */,
+				B003 /* MediaStore.swift in Sources */,
+				B005 /* AppSettings.swift in Sources */,
+				B009 /* PreferencesView.swift in Sources */,
+				B006 /* ImageDisplayView.swift in Sources */,
+				B007 /* StatusBarView.swift in Sources */,
+				B008 /* YeeCommands.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,34 +161,9 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -176,18 +171,8 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = ( "DEBUG=1", "$(inherited)", );
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -204,47 +189,15 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_COMMA = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INFINITE_RECURSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
-				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
-				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
-				CLANG_WARN_STRICT_PROTOTYPES = YES;
-				CLANG_WARN_SUSPICIOUS_MOVE = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MTL_FAST_MATH = YES;
@@ -258,19 +211,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = ImageViewer/ImageViewer.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Yee/Yee.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ImageViewer/Info.plist;
+				INFOPLIST_FILE = Yee/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = ( "$(inherited)", "@executable_path/../Frameworks", );
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.local.ImageViewer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vince357.Yee;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -282,19 +232,16 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = ImageViewer/ImageViewer.entitlements;
+				CODE_SIGN_ENTITLEMENTS = Yee/Yee.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = ImageViewer/Info.plist;
+				INFOPLIST_FILE = Yee/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = ( "$(inherited)", "@executable_path/../Frameworks", );
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.local.ImageViewer;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vince357.Yee;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -304,21 +251,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		XCL0 /* Build configuration list for PBXProject "ImageViewer" */ = {
+		XCL0 /* Build configuration list for PBXProject "Yee" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (
-				CFG1 /* Debug */,
-				CFG2 /* Release */,
-			);
+			buildConfigurations = ( CFG1 /* Debug */, CFG2 /* Release */, );
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		XCL1 /* Build configuration list for PBXNativeTarget "ImageViewer" */ = {
+		XCL1 /* Build configuration list for PBXNativeTarget "Yee" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = (
-				CFG3 /* Debug */,
-				CFG4 /* Release */,
-			);
+			buildConfigurations = ( CFG3 /* Debug */, CFG4 /* Release */, );
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
