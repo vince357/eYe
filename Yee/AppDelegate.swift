@@ -9,9 +9,15 @@ extension Notification.Name {
 
 class AppDelegate: NSObject, NSApplicationDelegate {
 
+    /// Set immediately when Finder/Dock hands us a file/folder to open,
+    /// even before the SwiftUI view hierarchy exists to receive a
+    /// notification. ContentView checks this on appear, which removes the
+    /// race condition that previously made cold-launch "open with" and
+    /// Dock drops unreliable.
+    static var pendingURL: URL?
+
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 
-    // Called when app is already running and user opens a file from Finder
     func application(_ sender: NSApplication, openFile filename: String) -> Bool {
         dispatch(url: URL(fileURLWithPath: filename))
         return true
@@ -22,10 +28,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         dispatch(url: URL(fileURLWithPath: first))
     }
 
-    // Called on cold launch with a file — applicationDidFinishLaunching fires AFTER
-    // openFile:, but we still need this for the case where the window isn't ready yet.
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Apply startup preferences
         if AppSettings.shared.openFullScreenByDefault {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 NSApp.mainWindow?.toggleFullScreen(nil)
@@ -37,11 +40,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         var isDir: ObjCBool = false
         FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
         let name: Notification.Name = isDir.boolValue ? .openFolderURL : .openImageURL
-        // Post immediately; ContentView will pick it up via onReceive.
-        // If the window hasn't appeared yet, we retry after a short delay.
+
+        Self.pendingURL = url
+
+        // Covers the "app already running" case, where ContentView's
+        // onReceive is already live.
         NotificationCenter.default.post(name: name, object: url)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            NotificationCenter.default.post(name: name, object: url)
-        }
     }
 }

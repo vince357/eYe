@@ -34,8 +34,8 @@ class MediaStore: ObservableObject {
     @Published var files: [MediaFile] = []
     @Published var currentIndex: Int = 0
     @Published var currentFolderURL: URL?
-    // Accumulated rotation (degrees, CW), not yet saved
     @Published var pendingRotation: Int = 0
+    @Published var lastOpenWasEmpty: Bool = false   // true if user opened a file/folder with 0 supported media
 
     private let settings = AppSettings.shared
 
@@ -106,6 +106,7 @@ class MediaStore: ObservableObject {
             }
         }
         files = collected.map { MediaFile(url: $0) }
+        lastOpenWasEmpty = files.isEmpty
         sortFiles()
     }
 
@@ -132,10 +133,10 @@ class MediaStore: ObservableObject {
 
     // MARK: - Navigation (all loop)
 
-    func goNext()     { guard !files.isEmpty else { return }; currentIndex = (currentIndex + 1) % files.count; resetRotation() }
-    func goPrevious() { guard !files.isEmpty else { return }; currentIndex = (currentIndex - 1 + files.count) % files.count; resetRotation() }
-    func goFirst()    { currentIndex = 0; resetRotation() }
-    func goLast()     { currentIndex = max(0, files.count - 1); resetRotation() }
+    func goNext()     { guard !files.isEmpty else { return }; currentIndex = (currentIndex + 1) % files.count; pendingRotation = 0 }
+    func goPrevious() { guard !files.isEmpty else { return }; currentIndex = (currentIndex - 1 + files.count) % files.count; pendingRotation = 0 }
+    func goFirst()    { currentIndex = 0; pendingRotation = 0 }
+    func goLast()     { currentIndex = max(0, files.count - 1); pendingRotation = 0 }
 
     private var previousRandomIndex: Int?
     func goRandom() {
@@ -144,36 +145,43 @@ class MediaStore: ObservableObject {
         var next: Int
         repeat { next = Int.random(in: 0..<files.count) } while next == currentIndex
         currentIndex = next
-        resetRotation()
+        pendingRotation = 0
     }
     func goBackFromRandom() {
         if let p = previousRandomIndex { currentIndex = p; previousRandomIndex = nil }
         else { goPrevious() }
-        resetRotation()
+        pendingRotation = 0
     }
-
-    private func resetRotation() { pendingRotation = 0 }
 
     // MARK: - Rotation (CW, 90° steps)
 
     func rotateCW() { pendingRotation = (pendingRotation + 90) % 360 }
 
-    // Lossless save using CGImageDestination
+    /// Lossless save using CGImageDestination, with a robust standard RGBA
+    /// rendering context so it doesn't crash on indexed/paletted or unusual
+    /// bit-depth PNGs (the previous implementation copied the source's raw
+    /// bitmap info, which some PNG variants are incompatible with).
     func saveLosslessly(completion: @escaping (Bool, String) -> Void) {
-        guard let file = currentFile else { completion(false, "Aucun fichier."); return }
-        guard pendingRotation != 0 else { completion(false, "Aucune rotation en attente."); return }
+        guard let file = currentFile else { completion(false, L("toast.noFile")); return }
+        guard pendingRotation != 0 else { completion(false, L("toast.noRotation")); return }
+
+        let url = file.url
+        let rotationSteps = pendingRotation / 90
 
         DispatchQueue.global(qos: .userInitiated).async {
-            guard let src = NSImage(contentsOf: file.url),
-                  let cgImage = src.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-                DispatchQueue.main.async { completion(false, "Impossible de lire l'image.") }
+            guard let dataProvider = CGDataProvider(url: url as CFURL),
+                  let source = CGImageSourceCreateWithDataProvider(dataProvider, nil),
+                  let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+                DispatchQueue.main.async { completion(false, L("toast.saveFailed", "read error")) }
                 return
             }
 
-            let rotated = cgImage.rotatedCW(times: self.pendingRotation / 90)
-            let ext = file.url.pathExtension.lowercased()
+            guard let rotated = Self.rotatedCopy(of: cgImage, times: rotationSteps) else {
+                DispatchQueue.main.async { completion(false, L("toast.saveFailed", "rotation error")) }
+                return
+            }
 
-            // Determine UTType for lossless write
+            let ext = url.pathExtension.lowercased()
             let uti: String
             switch ext {
             case "png","ico","bmp": uti = "public.png"
@@ -184,13 +192,12 @@ class MediaStore: ObservableObject {
             default:                uti = "public.png"
             }
 
-            guard let dest = CGImageDestinationCreateWithURL(file.url as CFURL, uti as CFString, 1, nil) else {
-                DispatchQueue.main.async { completion(false, "Impossible d'écrire le fichier.") }
+            guard let dest = CGImageDestinationCreateWithURL(url as CFURL, uti as CFString, 1, nil) else {
+                DispatchQueue.main.async { completion(false, L("toast.saveFailed", "write error")) }
                 return
             }
 
-            // For JPEG: use highest quality (near-lossless), for others: truly lossless
-            let props: [String: Any] = ext == "jpg" || ext == "jpeg"
+            let props: [String: Any] = (ext == "jpg" || ext == "jpeg")
                 ? [kCGImageDestinationLossyCompressionQuality as String: 1.0]
                 : [:]
 
@@ -200,12 +207,58 @@ class MediaStore: ObservableObject {
             DispatchQueue.main.async {
                 if ok {
                     self.pendingRotation = 0
-                    completion(true, "Image sauvegardée.")
+                    completion(true, L("toast.saved"))
                 } else {
-                    completion(false, "Erreur lors de la sauvegarde.")
+                    completion(false, L("toast.saveFailed", "finalize error"))
                 }
             }
         }
+    }
+
+    /// Renders the image into a standard 8-bit RGBA context before rotating,
+    /// so any source pixel format (indexed PNG, grayscale, 16-bit, CMYK, etc.)
+    /// is normalized first. This is what prevents the crash reported on PNGs.
+    private static func rotatedCopy(of image: CGImage, times: Int) -> CGImage? {
+        let steps = ((times % 4) + 4) % 4
+        var current = normalize(image)
+        guard var result = current else { return nil }
+
+        for _ in 0..<steps {
+            let w = result.width, h = result.height
+            guard let ctx = CGContext(
+                data: nil,
+                width: h,
+                height: w,
+                bitsPerComponent: 8,
+                bytesPerRow: 0,
+                space: CGColorSpaceCreateDeviceRGB(),
+                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            ) else { return nil }
+
+            ctx.translateBy(x: CGFloat(h), y: 0)
+            ctx.rotate(by: .pi / 2)
+            ctx.draw(result, in: CGRect(x: 0, y: 0, width: CGFloat(w), height: CGFloat(h)))
+            guard let next = ctx.makeImage() else { return nil }
+            result = next
+        }
+        current = result
+        return current
+    }
+
+    private static func normalize(_ image: CGImage) -> CGImage? {
+        let w = image.width, h = image.height
+        guard w > 0, h > 0 else { return nil }
+        guard let ctx = CGContext(
+            data: nil,
+            width: w,
+            height: h,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return nil }
+        ctx.draw(image, in: CGRect(x: 0, y: 0, width: w, height: h))
+        return ctx.makeImage()
     }
 
     // MARK: - Finder
@@ -218,36 +271,16 @@ class MediaStore: ObservableObject {
     // MARK: - Trash
 
     func deleteCurrentFile(completion: @escaping (Bool, String) -> Void) {
-        guard let file = currentFile else { completion(false, "Aucun fichier."); return }
+        guard let file = currentFile else { completion(false, L("toast.noFile")); return }
         do {
             try FileManager.default.trashItem(at: file.url, resultingItemURL: nil)
             let idx = currentIndex
             files.removeAll { $0.url == file.url }
             currentIndex = files.isEmpty ? 0 : min(idx, files.count - 1)
             pendingRotation = 0
-            completion(true, "« \(file.name) » déplacé vers la Corbeille.")
+            completion(true, L("toast.trashed", file.name))
         } catch {
-            completion(false, "Erreur : \(error.localizedDescription)")
+            completion(false, L("toast.trashFailed", error.localizedDescription))
         }
-    }
-}
-
-// MARK: - CGImage lossless rotation helper
-extension CGImage {
-    func rotatedCW(times: Int) -> CGImage {
-        var result = self
-        for _ in 0..<(times % 4) {
-            let w = result.width, h = result.height
-            let ctx = CGContext(data: nil, width: h, height: w,
-                                bitsPerComponent: result.bitsPerComponent,
-                                bytesPerRow: 0,
-                                space: result.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
-                                bitmapInfo: result.bitmapInfo.rawValue)!
-            ctx.translateBy(x: CGFloat(h), y: 0)
-            ctx.rotate(by: .pi / 2)
-            ctx.draw(result, in: CGRect(x: 0, y: 0, width: CGFloat(w), height: CGFloat(h)))
-            result = ctx.makeImage()!
-        }
-        return result
     }
 }

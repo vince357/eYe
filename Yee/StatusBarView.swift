@@ -39,7 +39,9 @@ struct StatusBarView: View {
 
     private func formatSize(_ bytes: Int) -> String {
         let kb = Double(bytes) / 1024
-        if kb < 1024 { return String(format: "%.0f Ko", kb) }
-        return String(format: "%.1f Mo", kb / 1024)
+        let unitKB = AppSettings.shared.language == .french ? "Ko" : "KB"
+        let unitMB = AppSettings.shared.language == .french ? "Mo" : "MB"
+        if kb < 1024 { return String(format: "%.0f %@", kb, unitKB) }
+        return String(format: "%.1f %@", kb / 1024, unitMB)
     }
 }

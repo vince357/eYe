@@ -5,26 +5,36 @@ struct PreferencesView: View {
 
     var body: some View {
         Form {
-            Section("Ouverture") {
-                Toggle("Ouvrir en plein écran par défaut", isOn: $settings.openFullScreenByDefault)
-                Toggle("Toujours ajuster les images à l'ouverture", isOn: $settings.alwaysFitOnOpen)
-                Toggle("Inclure les sous-dossiers", isOn: $settings.includeSubfolders)
+            Section {
+                Picker(L("prefs.language"), selection: $settings.language) {
+                    ForEach(AppLanguage.allCases) { lang in
+                        Text(lang.displayName).tag(lang)
+                    }
+                }
+                .pickerStyle(.menu)
             }
 
-            Section("Interface") {
-                Toggle("Afficher la barre de statut", isOn: $settings.showStatusBar)
+            Section(L("prefs.section.opening")) {
+                Toggle(L("prefs.openFullScreen"), isOn: $settings.openFullScreenByDefault)
+                Toggle(L("prefs.alwaysFit"), isOn: $settings.alwaysFitOnOpen)
+                Toggle(L("prefs.includeSubfolders"), isOn: $settings.includeSubfolders)
             }
 
-            Section("Options d'ajustement") {
-                Toggle("Réduire horizontalement", isOn: $settings.shrinkHorizontal)
-                Toggle("Réduire verticalement", isOn: $settings.shrinkVertical)
-                Toggle("Étirer horizontalement", isOn: $settings.stretchHorizontal)
-                Toggle("Étirer verticalement", isOn: $settings.stretchVertical)
+            Section(L("prefs.section.interface")) {
+                Toggle(L("prefs.showStatusBar"), isOn: $settings.showStatusBar)
+            }
+
+            Section(L("prefs.section.fitting")) {
+                Toggle(L("menu.shrinkH"), isOn: $settings.shrinkHorizontal)
+                Toggle(L("menu.shrinkV"), isOn: $settings.shrinkVertical)
+                Toggle(L("menu.stretchH"), isOn: $settings.stretchHorizontal)
+                Toggle(L("menu.stretchV"), isOn: $settings.stretchVertical)
             }
         }
         .padding(20)
         .frame(width: 380)
         .onDisappear { settings.save() }
+        .onChange(of: settings.language) { _ in settings.save() }
         .onChange(of: settings.openFullScreenByDefault) { _ in settings.save() }
         .onChange(of: settings.alwaysFitOnOpen) { _ in settings.save() }
         .onChange(of: settings.includeSubfolders) { _ in

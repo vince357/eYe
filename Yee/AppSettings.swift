@@ -2,11 +2,16 @@ import Foundation
 import Combine
 
 enum SortKey: String, CaseIterable, Identifiable {
-    case name         = "Nom"
-    case dateModified = "Date de modification"
-    case size         = "Poids"
-    case fileType     = "Type de fichier"
+    case name, dateModified, size, fileType
     var id: String { rawValue }
+    var label: String {
+        switch self {
+        case .name: return L("sort.name")
+        case .dateModified: return L("sort.dateModified")
+        case .size: return L("sort.size")
+        case .fileType: return L("sort.fileType")
+        }
+    }
 }
 
 enum SortDirection: String {
@@ -17,28 +22,31 @@ final class AppSettings: ObservableObject {
     static let shared = AppSettings()
     private init() { load() }
 
-    // MARK: - Opening behaviour
+    @Published var language: AppLanguage = .english
+
     @Published var openFullScreenByDefault: Bool = false
     @Published var alwaysFitOnOpen: Bool = true
 
-    // MARK: - Fit options
     @Published var shrinkHorizontal: Bool  = true
     @Published var shrinkVertical: Bool    = true
     @Published var stretchHorizontal: Bool = false
     @Published var stretchVertical: Bool   = false
 
-    // MARK: - UI
     @Published var showStatusBar: Bool = true
 
-    // MARK: - Sort
     @Published var sortKey: SortKey         = .name
     @Published var sortDirection: SortDirection = .ascending
     @Published var includeSubfolders: Bool  = false
 
-    // MARK: - Persist
     private let defaults = UserDefaults.standard
 
     func load() {
+        if let raw = defaults.string(forKey: "language"), let l = AppLanguage(rawValue: raw) {
+            language = l
+        } else {
+            // Default to English regardless of system locale, per product decision.
+            language = .english
+        }
         openFullScreenByDefault = defaults.bool(forKey: "openFullScreen")
         alwaysFitOnOpen         = defaults.object(forKey: "alwaysFit") as? Bool ?? true
         shrinkHorizontal        = defaults.object(forKey: "shrinkH") as? Bool ?? true
@@ -52,6 +60,7 @@ final class AppSettings: ObservableObject {
     }
 
     func save() {
+        defaults.set(language.rawValue,       forKey: "language")
         defaults.set(openFullScreenByDefault, forKey: "openFullScreen")
         defaults.set(alwaysFitOnOpen,         forKey: "alwaysFit")
         defaults.set(shrinkHorizontal,        forKey: "shrinkH")

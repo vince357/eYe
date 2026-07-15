@@ -9,53 +9,77 @@ struct ImageDisplayView: View {
     @Binding var imagePixelSize: CGSize?
     @Binding var panOffset: CGSize
     @Binding var gifPaused: Bool
-    let stepRequestToken: Int                // increments to request one GIF frame step
+    let stepRequestToken: Int
+    let nudgeToken: Int
+    let nudgeDelta: CGSize
 
     var body: some View {
         GeometryReader { geo in
             if let file = store.currentFile {
                 let ext = file.url.pathExtension.lowercased()
                 let scale = computeScale(containerSize: geo.size)
+                let scaledSize = CGSize(width: (imagePixelSize?.width ?? geo.size.width) * scale,
+                                        height: (imagePixelSize?.height ?? geo.size.height) * scale)
 
-                Group {
-                    if ext == "gif" {
-                        AnimatedGIFView(url: file.url,
-                                        naturalSize: $imagePixelSize,
-                                        paused: $gifPaused,
-                                        stepToken: stepRequestToken)
-                    } else if MediaStore.videoExtensions.contains(ext) {
-                        VideoPreviewView(url: file.url)
-                    } else {
-                        StaticImageView(url: file.url, naturalSize: $imagePixelSize)
+                ZStack {
+                    Group {
+                        if ext == "gif" {
+                            AnimatedGIFView(url: file.url, naturalSize: $imagePixelSize,
+                                            paused: $gifPaused, stepToken: stepRequestToken)
+                        } else if MediaStore.videoExtensions.contains(ext) {
+                            VideoPreviewView(url: file.url)
+                        } else {
+                            StaticImageView(url: file.url, naturalSize: $imagePixelSize)
+                        }
                     }
+                    .rotationEffect(.degrees(Double(store.pendingRotation)))
+                    .frame(width: scaledSize.width, height: scaledSize.height)
+                    .offset(panOffset)
                 }
-                .rotationEffect(.degrees(Double(store.pendingRotation)))
-                .frame(width: (imagePixelSize?.width ?? geo.size.width) * scale,
-                       height: (imagePixelSize?.height ?? geo.size.height) * scale)
-                .position(x: geo.size.width / 2 + panOffset.width,
-                          y: geo.size.height / 2 + panOffset.height)
-                .frame(width: geo.size.width, height: geo.size.height, alignment: .topLeading)
+                .frame(width: geo.size.width, height: geo.size.height)
                 .clipped()
                 .contentShape(Rectangle())
                 .gesture(
-                    DragGesture(minimumDistance: 2)
+                    DragGesture(minimumDistance: 1)
                         .onChanged { v in
-                            guard isImageLargerThanContainer(containerSize: geo.size, scale: scale) else { return }
-                            panOffset = CGSize(width: panOffset.width + v.translation.width * 0.15,
-                                                height: panOffset.height + v.translation.height * 0.15)
+                            let start = dragStartOffset ?? panOffset
+                            if dragStartOffset == nil { dragStartOffset = panOffset }
+                            let proposed = CGSize(width: start.width + v.translation.width,
+                                                  height: start.height + v.translation.height)
+                            panOffset = clamp(proposed, scaledSize: scaledSize, containerSize: geo.size)
                         }
+                        .onEnded { _ in dragStartOffset = nil }
                 )
-                .onDrag {
-                    NSItemProvider(contentsOf: file.url) ?? NSItemProvider()
-                }
+                // Identity keyed on the file's URL: forces SwiftUI to fully
+                // discard and recreate this subtree (and its @State) when the
+                // current file changes, instead of potentially reusing stale
+                // state from the previous image while an async load is still
+                // in flight. This is what fixed the name/image mismatch bug.
+                .id(file.url)
                 .onChange(of: store.currentIndex) { _ in panOffset = .zero }
+                .onChange(of: nudgeToken) { _ in
+                    let proposed = CGSize(width: panOffset.width + nudgeDelta.width,
+                                          height: panOffset.height + nudgeDelta.height)
+                    panOffset = clamp(proposed, scaledSize: scaledSize, containerSize: geo.size)
+                }
+            } else {
+                Color.clear
             }
         }
     }
 
-    private func isImageLargerThanContainer(containerSize: CGSize, scale: CGFloat) -> Bool {
-        guard let nat = imagePixelSize else { return false }
-        return nat.width * scale > containerSize.width || nat.height * scale > containerSize.height
+    @State private var dragStartOffset: CGSize? = nil
+
+    /// Keeps the image edges from ever revealing empty background beyond
+    /// what panning should expose: clamps so the visible image always fully
+    /// covers the container on any axis where it's larger than the container.
+    private func clamp(_ offset: CGSize, scaledSize: CGSize, containerSize: CGSize) -> CGSize {
+        var result = offset
+        let maxX = max(0, (scaledSize.width - containerSize.width) / 2)
+        let maxY = max(0, (scaledSize.height - containerSize.height) / 2)
+        result.width = min(max(result.width, -maxX), maxX)
+        result.height = min(max(result.height, -maxY), maxY)
+        return result
     }
 
     private func computeScale(containerSize: CGSize) -> CGFloat {
@@ -63,40 +87,46 @@ struct ImageDisplayView: View {
             return zoomScale > 0 ? zoomScale : 1.0
         }
         if zoomScale > 0 { return zoomScale }
-        return fitScale(containerSize: containerSize, natural: nat)
+        return Self.fitScale(containerSize: containerSize, natural: nat, settings: settings)
     }
 
-    // Exposed so ContentView can compute the same fit scale for the status bar / reset logic
     static func fitScale(containerSize: CGSize, natural: CGSize, settings: AppSettings) -> CGFloat {
         let widthRatio  = containerSize.width  / natural.width
         let heightRatio = containerSize.height / natural.height
         var scale: CGFloat = 1.0
         var applied = false
 
-        if settings.shrinkHorizontal && natural.width > containerSize.width {
-            scale = min(scale, widthRatio); applied = true
-        }
-        if settings.shrinkVertical && natural.height > containerSize.height {
-            scale = min(scale, heightRatio); applied = true
-        }
+        // "Stretch" is applied first, then clamped by "shrink" on the OTHER
+        // axis if it would otherwise overflow — this prevents cropping when
+        // e.g. "stretch horizontal" is on but the resulting height would
+        // exceed the window (per user feedback: never crop, use letterboxing
+        // instead).
         if settings.stretchHorizontal && natural.width < containerSize.width {
             scale = max(scale, widthRatio); applied = true
         }
         if settings.stretchVertical && natural.height < containerSize.height {
             scale = max(scale, heightRatio); applied = true
         }
+        if settings.shrinkHorizontal && natural.width * scale > containerSize.width {
+            scale = min(scale, widthRatio)
+        }
+        if settings.shrinkVertical && natural.height * scale > containerSize.height {
+            scale = min(scale, heightRatio)
+        }
+        if settings.shrinkHorizontal && natural.width > containerSize.width && !applied {
+            scale = min(scale, widthRatio); applied = true
+        }
+        if settings.shrinkVertical && natural.height > containerSize.height && !applied {
+            scale = min(scale, heightRatio); applied = true
+        }
         if !applied {
             scale = min(widthRatio, heightRatio)
         }
         return scale
     }
-
-    private func fitScale(containerSize: CGSize, natural: CGSize) -> CGFloat {
-        Self.fitScale(containerSize: containerSize, natural: natural, settings: settings)
-    }
 }
 
-// MARK: - Static image (max quality rendering, incl. upscaling)
+// MARK: - Static image (max quality, incl. upscaling)
 struct StaticImageView: View {
     let url: URL
     @Binding var naturalSize: CGSize?
@@ -107,33 +137,31 @@ struct StaticImageView: View {
             if let img = image {
                 Image(nsImage: img)
                     .resizable()
-                    .interpolation(.high)          // best available interpolation for upscaling
+                    .interpolation(.high)
                     .antialiased(true)
             } else {
                 ProgressView().tint(.white)
             }
         }
         .onAppear { load() }
-        .onChange(of: url) { _ in load() }
     }
 
     private func load() {
-        image = nil
-        naturalSize = nil
+        let requestedURL = url
         DispatchQueue.global(qos: .userInitiated).async {
-            guard let img = NSImage(contentsOf: url) else { return }
-            // Force use of the largest available representation (important for RAW/multi-rep formats)
+            guard let img = NSImage(contentsOf: requestedURL) else { return }
+            let size: CGSize
             if let best = img.representations.max(by: { $0.pixelsWide * $0.pixelsHigh < $1.pixelsWide * $1.pixelsHigh }) {
-                let size = CGSize(width: best.pixelsWide, height: best.pixelsHigh)
-                DispatchQueue.main.async {
-                    image = img
-                    naturalSize = size
-                }
+                size = CGSize(width: best.pixelsWide, height: best.pixelsHigh)
             } else {
-                DispatchQueue.main.async {
-                    image = img
-                    naturalSize = img.size
-                }
+                size = img.size
+            }
+            DispatchQueue.main.async {
+                // Guard against a stale async result arriving after the user
+                // has already navigated away from this file.
+                guard requestedURL == url else { return }
+                image = img
+                naturalSize = size
             }
         }
     }
@@ -158,32 +186,16 @@ struct AnimatedGIFView: NSViewRepresentable {
     func updateNSView(_ nsView: NSImageView, context: Context) {
         if context.coordinator.loadedURL != url {
             context.coordinator.loadedURL = url
-            guard let data = try? Data(contentsOf: url),
-                  let src = CGImageSourceCreateWithData(data as CFData, nil) else { return }
-            context.coordinator.frames = Self.extractFrames(source: src)
-            context.coordinator.frameIndex = 0
             let img = NSImage(contentsOf: url)
             nsView.image = img
             DispatchQueue.main.async { naturalSize = img?.size }
         }
-
         nsView.animates = !paused
 
         if paused, context.coordinator.lastStepToken != stepToken {
             context.coordinator.lastStepToken = stepToken
-            context.coordinator.stepFrame(on: nsView)
+            context.coordinator.stepFrame(on: nsView, url: url)
         }
-    }
-
-    static func extractFrames(source: CGImageSource) -> [NSImage] {
-        let count = CGImageSourceGetCount(source)
-        var frames: [NSImage] = []
-        for i in 0..<count {
-            if let cg = CGImageSourceCreateImageAtIndex(source, i, nil) {
-                frames.append(NSImage(cgImage: cg, size: .zero))
-            }
-        }
-        return frames
     }
 
     class Coordinator {
@@ -192,7 +204,16 @@ struct AnimatedGIFView: NSViewRepresentable {
         var frameIndex: Int = 0
         var lastStepToken: Int = 0
 
-        func stepFrame(on view: NSImageView) {
+        func stepFrame(on view: NSImageView, url: URL) {
+            if frames.isEmpty {
+                guard let data = try? Data(contentsOf: url),
+                      let src = CGImageSourceCreateWithData(data as CFData, nil) else { return }
+                let count = CGImageSourceGetCount(src)
+                frames = (0..<count).compactMap { i in
+                    CGImageSourceCreateImageAtIndex(src, i, nil).map { NSImage(cgImage: $0, size: .zero) }
+                }
+                frameIndex = 0
+            }
             guard !frames.isEmpty else { return }
             frameIndex = (frameIndex + 1) % frames.count
             view.image = frames[frameIndex]

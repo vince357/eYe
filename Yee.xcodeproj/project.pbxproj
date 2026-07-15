@@ -17,6 +17,7 @@
 		B008 /* YeeCommands.swift in Sources */ = {isa = PBXBuildFile; fileRef = A008 /* YeeCommands.swift */; };
 		B009 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A011 /* PreferencesView.swift */; };
 		B010 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A012 /* Assets.xcassets */; };
+		B011 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A013 /* Localization.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		A010 /* Yee.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Yee.entitlements; sourceTree = "<group>"; };
 		A011 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		A012 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A013 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
 		PROD /* Yee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yee.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -66,6 +68,7 @@
 				A006 /* ImageDisplayView.swift */,
 				A007 /* StatusBarView.swift */,
 				A008 /* YeeCommands.swift */,
+				A013 /* Localization.swift */,
 				A012 /* Assets.xcassets */,
 				A009 /* Info.plist */,
 				A010 /* Yee.entitlements */,
@@ -116,7 +119,7 @@
 			};
 			buildConfigurationList = XCL0 /* Build configuration list for PBXProject "Yee" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = fr;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = ( fr, en, Base, );
 			mainGroup = ROOT;
@@ -150,6 +153,7 @@
 				B006 /* ImageDisplayView.swift in Sources */,
 				B007 /* StatusBarView.swift in Sources */,
 				B008 /* YeeCommands.swift in Sources */,
+				B011 /* Localization.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
