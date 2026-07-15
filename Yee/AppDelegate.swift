@@ -9,15 +9,22 @@ extension Notification.Name {
 
 class AppDelegate: NSObject, NSApplicationDelegate {
 
-    /// Set immediately when Finder/Dock hands us a file/folder to open,
-    /// even before the SwiftUI view hierarchy exists to receive a
-    /// notification. ContentView checks this on appear, which removes the
-    /// race condition that previously made cold-launch "open with" and
-    /// Dock drops unreliable.
+    /// Set immediately when Finder/Dock hands us a file/folder to open.
+    /// ContentView polls this a few times after appearing (see ContentView's
+    /// consumePendingURLIfNeeded), which removes the launch-timing race that
+    /// made cold-launch "open with" and Dock drops unreliable before.
     static var pendingURL: URL?
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 
+    // MARK: - Modern hook (macOS 10.13+) — the one Finder/LaunchServices
+    // actually uses for a plain SwiftUI-lifecycle app (no NSDocument).
+    func application(_ application: NSApplication, open urls: [URL]) {
+        guard let first = urls.first else { return }
+        dispatch(url: first)
+    }
+
+    // MARK: - Legacy hooks kept as a fallback (harmless if unused)
     func application(_ sender: NSApplication, openFile filename: String) -> Bool {
         dispatch(url: URL(fileURLWithPath: filename))
         return true
@@ -42,9 +49,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let name: Notification.Name = isDir.boolValue ? .openFolderURL : .openImageURL
 
         Self.pendingURL = url
-
-        // Covers the "app already running" case, where ContentView's
-        // onReceive is already live.
         NotificationCenter.default.post(name: name, object: url)
     }
 }

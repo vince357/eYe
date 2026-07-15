@@ -6,7 +6,6 @@ enum YeeMenuAction {
     case revealInFinder
     case deleteCurrent
     case rotateCW
-    case saveLossless
     case zoomIn, zoomOut, zoomReset, fitOnScreen
     case toggleFullScreen
     case toggleStatusBar
@@ -36,9 +35,6 @@ struct YeeCommands: Commands {
 
             Button(L("menu.rotate")) { post(.rotateCW) }
                 .keyboardShortcut("r", modifiers: .command)
-
-            Button(L("menu.saveLossless")) { post(.saveLossless) }
-                .keyboardShortcut("s", modifiers: .command)
 
             Divider()
 

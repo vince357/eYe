@@ -62,14 +62,11 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(KeyCatcher(actions: keyActions))
         .onAppear {
-            if let url = AppDelegate.pendingURL {
-                AppDelegate.pendingURL = nil
-                hasOpenedAnything = true
-                var isDir: ObjCBool = false
-                FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
-                if isDir.boolValue { store.openFolder(url: url) } else { store.openFile(url: url) }
-                zoomScale = 0; panOffset = .zero
-                updateWindowTitle()
+            consumePendingURLIfNeeded()
+            for attempt in 1...6 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + Double(attempt) * 0.3) {
+                    consumePendingURLIfNeeded()
+                }
             }
         }
         .onChange(of: store.currentIndex) { _ in
@@ -118,6 +115,17 @@ struct ContentView: View {
         DispatchQueue.main.async { NSApp.mainWindow?.title = store.currentFile?.name ?? "Yee" }
     }
 
+    private func consumePendingURLIfNeeded() {
+        guard let url = AppDelegate.pendingURL else { return }
+        AppDelegate.pendingURL = nil
+        hasOpenedAnything = true
+        var isDir: ObjCBool = false
+        FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
+        if isDir.boolValue { store.openFolder(url: url) } else { store.openFile(url: url) }
+        zoomScale = 0; panOffset = .zero
+        updateWindowTitle()
+    }
+
     private func showToast(_ msg: String) {
         withAnimation { toastMessage = msg }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.2) { withAnimation { toastMessage = nil } }
@@ -145,7 +153,6 @@ struct ContentView: View {
         case .revealInFinder: store.revealInFinder()
         case .deleteCurrent: if store.currentFile != nil { showDeleteConfirm = true }
         case .rotateCW: store.rotateCW()
-        case .saveLossless: store.saveLosslessly { _, msg in showToast(msg) }
         case .zoomIn: setZoom(currentZoomValue() + 0.25)
         case .zoomOut: setZoom(currentZoomValue() - 0.25)
         case .zoomReset: setZoom(1.0)
@@ -290,7 +297,7 @@ class KeyCatcherNSView: NSView {
                 if chars == "+" || chars == "=" { a.onZoomIn(shift); return }
                 if chars == "-" { a.onZoomOut(shift); return }
                 if chars == "_" { a.onZoomOut(true); return }
-                if chars == "*" || chars == "/" { a.onFitResetKey(); return }
+                if chars == "*" { a.onFitResetKey(); return }
             }
         }
 

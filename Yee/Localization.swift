@@ -95,6 +95,9 @@ enum L10n {
             "prefs.section.interface": "Interface",
             "prefs.showStatusBar": "Show status bar",
             "prefs.section.fitting": "Fitting Options",
+            "prefs.restartTitle": "Restart Required",
+            "prefs.restartMessage": "Yee's own menus and messages already switched to the new language. However, some standard macOS menu items (Quit, Hide, Services, Window, Help…) are supplied by the system and will only follow the new language after you quit and reopen Yee.",
+            "prefs.restartLater": "OK, I'll Restart Later",
 
             // About
             "about.title": "About Yee",
@@ -164,6 +167,9 @@ enum L10n {
             "prefs.section.interface": "Interface",
             "prefs.showStatusBar": "Afficher la barre de statut",
             "prefs.section.fitting": "Options d'ajustement",
+            "prefs.restartTitle": "Redémarrage nécessaire",
+            "prefs.restartMessage": "Les menus et messages propres à Yee ont déjà basculé dans la nouvelle langue. En revanche, certains éléments de menu standards de macOS (Quitter, Masquer, Services, Fenêtre, Aide…) sont fournis par le système et ne suivront la nouvelle langue qu'après avoir quitté puis rouvert Yee.",
+            "prefs.restartLater": "OK, je redémarrerai plus tard",
 
             "about.title": "À propos de Yee",
             "about.tagline": "Un visualiseur d'images natif macOS, successeur spirituel de Xee³.",

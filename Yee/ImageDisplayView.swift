@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import AVKit
+import ImageIO
 
 struct ImageDisplayView: View {
     @ObservedObject var store: MediaStore
@@ -17,7 +18,7 @@ struct ImageDisplayView: View {
         GeometryReader { geo in
             if let file = store.currentFile {
                 let ext = file.url.pathExtension.lowercased()
-                let scale = computeScale(containerSize: geo.size)
+                let scale = computeScale(containerSize: geo.size, rotationDegrees: store.pendingRotation)
                 let scaledSize = CGSize(width: (imagePixelSize?.width ?? geo.size.width) * scale,
                                         height: (imagePixelSize?.height ?? geo.size.height) * scale)
 
@@ -82,12 +83,15 @@ struct ImageDisplayView: View {
         return result
     }
 
-    private func computeScale(containerSize: CGSize) -> CGFloat {
+    private func computeScale(containerSize: CGSize, rotationDegrees: Int) -> CGFloat {
         guard let nat = imagePixelSize, nat.width > 0, nat.height > 0 else {
             return zoomScale > 0 ? zoomScale : 1.0
         }
         if zoomScale > 0 { return zoomScale }
-        return Self.fitScale(containerSize: containerSize, natural: nat, settings: settings)
+        let normalized = ((rotationDegrees % 360) + 360) % 360
+        let swapped = normalized == 90 || normalized == 270
+        let effectiveNatural = swapped ? CGSize(width: nat.height, height: nat.width) : nat
+        return Self.fitScale(containerSize: containerSize, natural: effectiveNatural, settings: settings)
     }
 
     static func fitScale(containerSize: CGSize, natural: CGSize, settings: AppSettings) -> CGFloat {
@@ -187,9 +191,22 @@ struct AnimatedGIFView: NSViewRepresentable {
         if context.coordinator.loadedURL != url {
             context.coordinator.loadedURL = url
             let img = NSImage(contentsOf: url)
+            context.coordinator.animatedImage = img
             nsView.image = img
+            context.coordinator.frames = []
+            context.coordinator.frameIndex = 0
             DispatchQueue.main.async { naturalSize = img?.size }
         }
+
+        // Detect a paused -> resumed transition: while stepping frame-by-frame
+        // we swap in individual static NSImage frames, which replaces the
+        // NSImageView's animated image reference entirely. Simply flipping
+        // `animates` back on does nothing once that's happened — we must
+        // explicitly restore the original animated image first.
+        if context.coordinator.wasPaused && !paused {
+            nsView.image = context.coordinator.animatedImage
+        }
+        context.coordinator.wasPaused = paused
         nsView.animates = !paused
 
         if paused, context.coordinator.lastStepToken != stepToken {
@@ -200,9 +217,11 @@ struct AnimatedGIFView: NSViewRepresentable {
 
     class Coordinator {
         var loadedURL: URL?
+        var animatedImage: NSImage?
         var frames: [NSImage] = []
         var frameIndex: Int = 0
         var lastStepToken: Int = 0
+        var wasPaused: Bool = false
 
         func stepFrame(on view: NSImageView, url: URL) {
             if frames.isEmpty {
