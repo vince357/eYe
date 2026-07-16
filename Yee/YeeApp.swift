@@ -18,5 +18,10 @@ struct YeeApp: App {
         Settings {
             PreferencesView()
         }
+
+        // Help window
+        Window("Yee Help", id: "help") {
+            HelpView()
+        }
     }
 }

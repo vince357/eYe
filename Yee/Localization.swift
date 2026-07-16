@@ -14,9 +14,6 @@ enum AppLanguage: String, CaseIterable, Identifiable {
     }
 }
 
-/// Simple key-based localization dictionary.
-/// To add a new language: add a case to AppLanguage, then add a matching
-/// dictionary below. Missing keys fall back to English, then to the key itself.
 enum L10n {
     static func t(_ key: String) -> String {
         let lang = AppSettings.shared.language
@@ -27,20 +24,16 @@ enum L10n {
 
     private static let tables: [AppLanguage: [String: String]] = [
         .english: [
-            // Drop zone
             "dropzone.title": "Open an image or a folder",
             "dropzone.subtitle": "Drag a file or folder here, or use File › Open",
             "dropzone.empty.title": "No supported media found",
             "dropzone.empty.subtitle": "This folder doesn't contain any image or video Yee can open.",
 
-            // File menu
             "menu.open": "Open…",
             "menu.revealInFinder": "Reveal in Finder",
             "menu.rotate": "Rotate 90° (clockwise)",
-            "menu.saveLossless": "Save Losslessly",
             "menu.delete": "Move to Trash",
 
-            // View menu
             "menu.view": "View",
             "menu.fullscreen": "Full Screen",
             "menu.fitOnScreen": "Fit on Screen",
@@ -59,7 +52,6 @@ enum L10n {
             "menu.sortDescending": "Descending ✓",
             "menu.includeSubfolders": "Include Subfolders",
 
-            // Navigation menu
             "menu.navigation": "Navigation",
             "menu.next": "Next Image",
             "menu.previous": "Previous Image",
@@ -68,13 +60,11 @@ enum L10n {
             "menu.random": "Random Image",
             "menu.backFromRandom": "Go Back",
 
-            // Sort keys
             "sort.name": "Name",
             "sort.dateModified": "Date Modified",
             "sort.size": "Size",
             "sort.fileType": "File Type",
 
-            // Toasts / alerts
             "toast.saved": "Image saved.",
             "toast.saveFailed": "Save failed: %@",
             "toast.noRotation": "No pending rotation.",
@@ -85,7 +75,6 @@ enum L10n {
             "alert.cancel": "Cancel",
             "alert.moveToTrash": "Move to Trash",
 
-            // Preferences
             "prefs.title": "Preferences",
             "prefs.language": "Language",
             "prefs.section.opening": "Opening",
@@ -95,11 +84,34 @@ enum L10n {
             "prefs.section.interface": "Interface",
             "prefs.showStatusBar": "Show status bar",
             "prefs.section.fitting": "Fitting Options",
+            "prefs.singleWindow": "Reuse a single window (instead of opening one per file)",
             "prefs.restartTitle": "Restart Required",
             "prefs.restartMessage": "Yee's own menus and messages already switched to the new language. However, some standard macOS menu items (Quit, Hide, Services, Window, Help…) are supplied by the system and will only follow the new language after you quit and reopen Yee.",
             "prefs.restartLater": "OK, I'll Restart Later",
 
-            // About
+            "menu.help": "Yee Help",
+            "help.windowTitle": "Yee Help",
+            "help.formatsTitle": "Supported Formats",
+            "help.formatsList": "Images: JPG, PNG, GIF (animated), WebP, BMP, ICO, HEIC/HEIF, TIFF, SVG, PSD, TGA, EXR.\nVideo (basic preview): MP4, MOV, M4V, AVI, MKV, WebM.",
+            "help.shortcutsTitle": "Keyboard Shortcuts",
+            "help.sc.open": "Open a file or folder",
+            "help.sc.reveal": "Reveal current file in Finder",
+            "help.sc.rotate": "Rotate 90° clockwise (visual only)",
+            "help.sc.delete": "Move current file to Trash",
+            "help.sc.fullscreen": "Toggle full screen",
+            "help.sc.fit": "Reset zoom, respecting fitting options",
+            "help.sc.zoom100": "Zoom to 100%",
+            "help.sc.zoom": "Zoom in / out",
+            "help.sc.zoomFine": "Zoom in / out (finer increment)",
+            "help.sc.pan": "Pan the image when zoomed in",
+            "help.sc.prevNext": "Previous / next image",
+            "help.sc.firstLast": "First / last image",
+            "help.sc.random": "Random image",
+            "help.sc.randomBack": "Go back from random",
+            "help.sc.gifPause": "Pause GIF / step one frame",
+            "help.sc.gifResume": "Resume GIF playback",
+            "help.sc.prefs": "Preferences",
+
             "about.title": "About Yee",
             "about.tagline": "A native macOS image viewer, spiritual successor to Xee³.",
             "about.license": "Licensed under the MIT License.",
@@ -114,7 +126,6 @@ enum L10n {
             "menu.open": "Ouvrir…",
             "menu.revealInFinder": "Afficher dans le Finder",
             "menu.rotate": "Pivoter à 90° (horaire)",
-            "menu.saveLossless": "Enregistrer sans perte",
             "menu.delete": "Déplacer vers la Corbeille",
 
             "menu.view": "Affichage",
@@ -167,9 +178,33 @@ enum L10n {
             "prefs.section.interface": "Interface",
             "prefs.showStatusBar": "Afficher la barre de statut",
             "prefs.section.fitting": "Options d'ajustement",
+            "prefs.singleWindow": "Réutiliser une seule fenêtre (au lieu d'en ouvrir une par fichier)",
             "prefs.restartTitle": "Redémarrage nécessaire",
             "prefs.restartMessage": "Les menus et messages propres à Yee ont déjà basculé dans la nouvelle langue. En revanche, certains éléments de menu standards de macOS (Quitter, Masquer, Services, Fenêtre, Aide…) sont fournis par le système et ne suivront la nouvelle langue qu'après avoir quitté puis rouvert Yee.",
             "prefs.restartLater": "OK, je redémarrerai plus tard",
+
+            "menu.help": "Aide Yee",
+            "help.windowTitle": "Aide Yee",
+            "help.formatsTitle": "Formats pris en charge",
+            "help.formatsList": "Images : JPG, PNG, GIF (animé), WebP, BMP, ICO, HEIC/HEIF, TIFF, SVG, PSD, TGA, EXR.\nVidéo (aperçu basique) : MP4, MOV, M4V, AVI, MKV, WebM.",
+            "help.shortcutsTitle": "Raccourcis clavier",
+            "help.sc.open": "Ouvrir un fichier ou un dossier",
+            "help.sc.reveal": "Afficher le fichier dans le Finder",
+            "help.sc.rotate": "Pivoter à 90° horaire (visuel uniquement)",
+            "help.sc.delete": "Déplacer le fichier vers la Corbeille",
+            "help.sc.fullscreen": "Basculer le plein écran",
+            "help.sc.fit": "Réinitialiser le zoom, selon les options d'ajustement",
+            "help.sc.zoom100": "Zoom à 100%",
+            "help.sc.zoom": "Zoom avant / arrière",
+            "help.sc.zoomFine": "Zoom avant / arrière (incrément fin)",
+            "help.sc.pan": "Déplacer l'image quand elle est zoomée",
+            "help.sc.prevNext": "Image précédente / suivante",
+            "help.sc.firstLast": "Première / dernière image",
+            "help.sc.random": "Image aléatoire",
+            "help.sc.randomBack": "Revenir en arrière (aléatoire)",
+            "help.sc.gifPause": "Pause GIF / avancer d'une frame",
+            "help.sc.gifResume": "Reprendre la lecture du GIF",
+            "help.sc.prefs": "Préférences",
 
             "about.title": "À propos de Yee",
             "about.tagline": "Un visualiseur d'images natif macOS, successeur spirituel de Xee³.",

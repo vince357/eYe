@@ -26,6 +26,7 @@ final class AppSettings: ObservableObject {
 
     @Published var openFullScreenByDefault: Bool = false
     @Published var alwaysFitOnOpen: Bool = true
+    @Published var singleWindowMode: Bool = true
 
     @Published var shrinkHorizontal: Bool  = true
     @Published var shrinkVertical: Bool    = true
@@ -49,6 +50,7 @@ final class AppSettings: ObservableObject {
         }
         openFullScreenByDefault = defaults.bool(forKey: "openFullScreen")
         alwaysFitOnOpen         = defaults.object(forKey: "alwaysFit") as? Bool ?? true
+        singleWindowMode        = defaults.object(forKey: "singleWindow") as? Bool ?? true
         shrinkHorizontal        = defaults.object(forKey: "shrinkH") as? Bool ?? true
         shrinkVertical          = defaults.object(forKey: "shrinkV") as? Bool ?? true
         stretchHorizontal       = defaults.bool(forKey: "stretchH")
@@ -63,6 +65,7 @@ final class AppSettings: ObservableObject {
         defaults.set(language.rawValue,       forKey: "language")
         defaults.set(openFullScreenByDefault, forKey: "openFullScreen")
         defaults.set(alwaysFitOnOpen,         forKey: "alwaysFit")
+        defaults.set(singleWindowMode,        forKey: "singleWindow")
         defaults.set(shrinkHorizontal,        forKey: "shrinkH")
         defaults.set(shrinkVertical,          forKey: "shrinkV")
         defaults.set(stretchHorizontal,       forKey: "stretchH")

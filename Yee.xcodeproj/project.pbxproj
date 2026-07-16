@@ -18,6 +18,7 @@
 		B009 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A011 /* PreferencesView.swift */; };
 		B010 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A012 /* Assets.xcassets */; };
 		B011 /* Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A013 /* Localization.swift */; };
+		B012 /* HelpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A014 /* HelpView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -34,11 +35,12 @@
 		A011 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		A012 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A013 /* Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localization.swift; sourceTree = "<group>"; };
+		A014 /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
 		PROD /* Yee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Yee.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		FW01 = {
+		FW01 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -48,14 +50,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		ROOT = {
-			isa = PBXGroup;
-			children = (
-				GRP1 /* Yee */,
-				GRP2 /* Products */,
-			);
-			sourceTree = "<group>";
-		};
 		GRP1 /* Yee */ = {
 			isa = PBXGroup;
 			children = (
@@ -69,6 +63,7 @@
 				A007 /* StatusBarView.swift */,
 				A008 /* YeeCommands.swift */,
 				A013 /* Localization.swift */,
+				A014 /* HelpView.swift */,
 				A012 /* Assets.xcassets */,
 				A009 /* Info.plist */,
 				A010 /* Yee.entitlements */,
@@ -82,6 +77,14 @@
 				PROD /* Yee.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		ROOT = {
+			isa = PBXGroup;
+			children = (
+				GRP1 /* Yee */,
+				GRP2 /* Products */,
+			);
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -114,19 +117,27 @@
 				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
-					TGT1 = { CreatedOnToolsVersion = 15.0; };
+					TGT1 = {
+						CreatedOnToolsVersion = 15.0;
+					};
 				};
 			};
 			buildConfigurationList = XCL0 /* Build configuration list for PBXProject "Yee" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
-			knownRegions = ( fr, en, Base, );
+			knownRegions = (
+				fr,
+				en,
+				Base,
+			);
 			mainGroup = ROOT;
 			productRefGroup = GRP2 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = ( TGT1 /* Yee */, );
+			targets = (
+				TGT1 /* Yee */,
+			);
 		};
 /* End PBXProject section */
 
@@ -134,7 +145,9 @@
 		RES1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
-			files = ( B010 /* Assets.xcassets in Resources */, );
+			files = (
+				B010 /* Assets.xcassets in Resources */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
@@ -154,6 +167,7 @@
 				B007 /* StatusBarView.swift in Sources */,
 				B008 /* YeeCommands.swift in Sources */,
 				B011 /* Localization.swift in Sources */,
+				B012 /* HelpView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,7 +190,10 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = ( "DEBUG=1", "$(inherited)", );
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -210,7 +227,7 @@
 			};
 			name = Release;
 		};
-		CFG3 /* Debug - Target */ = {
+		CFG3 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -222,8 +239,11 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Yee/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = ( "$(inherited)", "@executable_path/../Frameworks", );
-				MARKETING_VERSION = 1.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.93.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.vince357.Yee;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -231,7 +251,7 @@
 			};
 			name = Debug;
 		};
-		CFG4 /* Release - Target */ = {
+		CFG4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -243,8 +263,11 @@
 				GENERATE_INFOPLIST_FILE = NO;
 				INFOPLIST_FILE = Yee/Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = ( "$(inherited)", "@executable_path/../Frameworks", );
-				MARKETING_VERSION = 1.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.93.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.vince357.Yee;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -257,18 +280,23 @@
 /* Begin XCConfigurationList section */
 		XCL0 /* Build configuration list for PBXProject "Yee" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = ( CFG1 /* Debug */, CFG2 /* Release */, );
+			buildConfigurations = (
+				CFG1 /* Debug */,
+				CFG2 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		XCL1 /* Build configuration list for PBXNativeTarget "Yee" */ = {
 			isa = XCConfigurationList;
-			buildConfigurations = ( CFG3 /* Debug */, CFG4 /* Release */, );
+			buildConfigurations = (
+				CFG3 /* Debug */,
+				CFG4 /* Release */,
+			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
 	};
 	rootObject = PROJ /* Project object */;
 }

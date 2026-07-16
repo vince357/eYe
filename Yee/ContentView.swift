@@ -62,10 +62,14 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(KeyCatcher(actions: keyActions))
         .onAppear {
+            if let w = NSApp.keyWindow ?? NSApp.mainWindow, w.identifier == nil {
+                w.identifier = AppDelegate.mainWindowID
+            }
             consumePendingURLIfNeeded()
             for attempt in 1...6 {
                 DispatchQueue.main.asyncAfter(deadline: .now() + Double(attempt) * 0.3) {
                     consumePendingURLIfNeeded()
+                    AppDelegate.enforceSingleWindowIfNeeded()
                 }
             }
         }

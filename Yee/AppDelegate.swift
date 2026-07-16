@@ -43,6 +43,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    /// Identifier tagged onto every main content window (see ContentView's
+    /// onAppear) so we can tell them apart from the Preferences/About/Help
+    /// windows when enforcing single-window mode.
+    static let mainWindowID = NSUserInterfaceItemIdentifier("YeeMainWindow")
+
+    /// When "single window" mode is on, Finder/Dock can still cause macOS to
+    /// spin up an extra window per open request (a side effect of declaring
+    /// CFBundleDocumentTypes alongside a WindowGroup scene). Rather than
+    /// fight that at the source, we let it happen and then merge back down
+    /// to one window shortly after — whichever is frontmost survives, since
+    /// it's the one that just received the newly-opened file.
+    static func enforceSingleWindowIfNeeded() {
+        guard AppSettings.shared.singleWindowMode else { return }
+        let mainWindows = NSApp.windows.filter { $0.identifier == mainWindowID }
+        guard mainWindows.count > 1 else { return }
+        let keeper = (NSApp.keyWindow.flatMap { mainWindows.contains($0) ? $0 : nil })
+            ?? mainWindows.last!
+        for w in mainWindows where w !== keeper {
+            w.close()
+        }
+    }
+
     private func dispatch(url: URL) {
         var isDir: ObjCBool = false
         FileManager.default.fileExists(atPath: url.path, isDirectory: &isDir)
@@ -50,5 +72,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         Self.pendingURL = url
         NotificationCenter.default.post(name: name, object: url)
+
+        for attempt in 1...6 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(attempt) * 0.25) {
+                Self.enforceSingleWindowIfNeeded()
+            }
+        }
     }
 }

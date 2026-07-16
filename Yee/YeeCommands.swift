@@ -15,11 +15,17 @@ enum YeeMenuAction {
 
 struct YeeCommands: Commands {
     @ObservedObject private var settings = AppSettings.shared
+    @Environment(\.openWindow) private var openWindow
 
     var body: some Commands {
 
         CommandGroup(replacing: .appInfo) {
             Button(L("about.title")) { showAboutPanel() }
+        }
+
+        CommandGroup(replacing: .help) {
+            Button(L("menu.help")) { openWindow(id: "help") }
+                .keyboardShortcut("?", modifiers: .command)
         }
 
         CommandGroup(replacing: .newItem) {
@@ -49,9 +55,13 @@ struct YeeCommands: Commands {
             Divider()
 
             Button(L("menu.fitOnScreen")) { post(.fitOnScreen) }
+                .keyboardShortcut("*", modifiers: [])
             Button(L("menu.zoom100")) { post(.zoomReset) }
+                .keyboardShortcut("0", modifiers: [])
             Button(L("menu.zoomIn")) { post(.zoomIn) }
+                .keyboardShortcut("=", modifiers: [])
             Button(L("menu.zoomOut")) { post(.zoomOut) }
+                .keyboardShortcut("-", modifiers: [])
 
             Divider()
 
@@ -131,10 +141,11 @@ struct YeeCommands: Commands {
         full.addAttribute(.link, value: "https://github.com/vince357/eYe", range: linkRange)
         full.addAttribute(.font, value: NSFont.systemFont(ofSize: 12), range: NSRange(location: 0, length: full.length))
 
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0.0"
         NSApp.orderFrontStandardAboutPanel(options: [
             .credits: full,
             NSApplication.AboutPanelOptionKey(rawValue: "ApplicationName"): "Yee",
-            .applicationVersion: "1.0"
+            .applicationVersion: version
         ])
     }
 }

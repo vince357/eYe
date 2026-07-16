@@ -3,33 +3,37 @@ import AppKit
 
 struct PreferencesView: View {
     @ObservedObject var settings = AppSettings.shared
-    @State private var languageChangedSinceOpen = false
 
     var body: some View {
-        Form {
-            Section {
-                Picker(L("prefs.language"), selection: $settings.language) {
+        VStack(alignment: .leading, spacing: 20) {
+
+            HStack {
+                Text(L("prefs.language"))
+                    .font(.headline)
+                    .frame(width: 120, alignment: .leading)
+                Picker("", selection: $settings.language) {
                     ForEach(AppLanguage.allCases) { lang in
                         Text(lang.displayName).tag(lang)
                     }
                 }
+                .labelsHidden()
                 .pickerStyle(.menu)
+                .frame(width: 160)
+                Spacer()
             }
-            .padding(.bottom, 4)
 
-            Section(L("prefs.section.opening")) {
+            sectionBlock(L("prefs.section.opening")) {
                 Toggle(L("prefs.openFullScreen"), isOn: $settings.openFullScreenByDefault)
                 Toggle(L("prefs.alwaysFit"), isOn: $settings.alwaysFitOnOpen)
                 Toggle(L("prefs.includeSubfolders"), isOn: $settings.includeSubfolders)
+                Toggle(L("prefs.singleWindow"), isOn: $settings.singleWindowMode)
             }
-            .padding(.bottom, 4)
 
-            Section(L("prefs.section.interface")) {
+            sectionBlock(L("prefs.section.interface")) {
                 Toggle(L("prefs.showStatusBar"), isOn: $settings.showStatusBar)
             }
-            .padding(.bottom, 4)
 
-            Section(L("prefs.section.fitting")) {
+            sectionBlock(L("prefs.section.fitting")) {
                 Toggle(L("menu.shrinkH"), isOn: $settings.shrinkHorizontal)
                 Toggle(L("menu.shrinkV"), isOn: $settings.shrinkVertical)
                 Toggle(L("menu.stretchH"), isOn: $settings.stretchHorizontal)
@@ -37,23 +41,16 @@ struct PreferencesView: View {
             }
         }
         .padding(24)
-        .frame(width: 420)
+        .frame(width: 440)
         .onDisappear { settings.save() }
         .onChange(of: settings.language) { newValue in
             settings.save()
-            // Our own UI (menus, toasts, alerts) already updates instantly via
-            // L(). But standard macOS-supplied menu items (Quit/Hide/
-            // Services/Window/Help…) are localized by AppKit itself from the
-            // system's own resources, resolved once at process launch based
-            // on the "AppleLanguages" preference — they can't be hot-swapped.
-            // Setting it here means a relaunch will pick up the new language
-            // for those too, without affecting our own instantly-updating
-            // strings.
             UserDefaults.standard.set([newValue.rawValue], forKey: "AppleLanguages")
             promptRestartIfNeeded()
         }
         .onChange(of: settings.openFullScreenByDefault) { _ in settings.save() }
         .onChange(of: settings.alwaysFitOnOpen) { _ in settings.save() }
+        .onChange(of: settings.singleWindowMode) { _ in settings.save() }
         .onChange(of: settings.includeSubfolders) { _ in
             settings.save()
             NotificationCenter.default.post(name: .yeeSortChanged, object: nil)
@@ -63,6 +60,22 @@ struct PreferencesView: View {
         .onChange(of: settings.shrinkVertical) { _ in settings.save() }
         .onChange(of: settings.stretchHorizontal) { _ in settings.save() }
         .onChange(of: settings.stretchVertical) { _ in settings.save() }
+    }
+
+    /// A section with its bold title on the LEFT and its controls stacked on
+    /// the RIGHT — matching the language row's layout, per feedback (not a
+    /// title-above-content block).
+    @ViewBuilder
+    private func sectionBlock<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+        HStack(alignment: .top) {
+            Text(title)
+                .font(.headline)
+                .frame(width: 120, alignment: .leading)
+            VStack(alignment: .leading, spacing: 6) {
+                content()
+            }
+            Spacer()
+        }
     }
 
     private func promptRestartIfNeeded() {
